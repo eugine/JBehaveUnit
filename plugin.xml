@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            name="JBehave Unit"
+            id="JBehaveUnit.commands.category">
+      </category>
+      <command
+            name="Jump to story/groovy"
+            categoryId="JBehaveUnit.commands.category"
+            id="JBehaveUnit.commands.jumpTo">
+      </command>
+      <command
+            categoryId="JBehaveUnit.commands.category"
+            id="JBehaveUnit.commands.launchStory"
+            name="Launch story">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            commandId="JBehaveUnit.commands.jumpTo"
+            class="com.eugenesokolov.jbehaveunit.handlers.JumpToHandler">
+      </handler>
+      <handler
+            class="com.eugenesokolov.jbehaveunit.handlers.LaunchStoryHandler"
+            commandId="JBehaveUnit.commands.launchStory">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="JBehaveUnit.commands.jumpTo"
+            contextId="org.eclipse.ui.contexts.window"
+            sequence="M1+6"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="JBehaveUnit.commands.launchStory"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+7">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               label="JBehave Unit"
+               mnemonic="M"
+               id="JBehaveUnit.menus.jbehaveMenu">
+            <command
+                  commandId="JBehaveUnit.commands.jumpTo"
+                  mnemonic="S"
+                  id="JBehaveUnit.menus.jumpTo">
+            </command>
+            <command
+                  commandId="JBehaveUnit.commands.launchStory"
+                  mnemonic="S"
+                  id="JBehaveUnit.menus.launchStory">
+            </command>
+         </menu>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="JBehaveUnit.toolbars.jbehaveToolbar">
+            <command
+                  commandId="JBehaveUnit.commands.jumpTo"
+                  icon="icons/sample.gif"
+                  tooltip="Jump between .story and corresponding .groovy files"
+                  id="JBehaveUnit.toolbars.jumpTo">
+            </command>
+            <command
+                  commandId="JBehaveUnit.commands.launchStory"
+                  icon="icons/sample.gif"
+                  tooltip="Start JUnit test on current story"
+                  id="JBehaveUnit.toolbars.launchStory">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
+
+</plugin>
