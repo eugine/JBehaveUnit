@@ -1,41 +1,31 @@
 package com.eugenesokolov.jbehaveunit.handlers;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IFileEditorMapping;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.ui.dialogs.SelectionDialog;
-import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.jdt.internal.core.search.JavaSearchScope;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.internal.ui.packageview.GotoResourceAction;
-import org.eclipse.jdt.internal.ui.packageview.PackagesMessages;
-import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.internal.ui.packageview.PackagesMessages;
 import org.eclipse.jdt.ui.IJavaElementSearchConstants;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.SelectionDialog;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.ide.IDE;
 
 /**
  * Our sample handler extends AbstractHandler, an IHandler base class.
@@ -58,26 +48,18 @@ public class JumpToHandler extends AbstractHandler {
 	 * from the application context.
 	 */
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		IWorkbenchPart workbenchPart = PlatformUI.getWorkbench()
-				.getActiveWorkbenchWindow().getActivePage().getActivePart();
-		IFile file = (IFile) workbenchPart.getSite().getPage()
-				.getActiveEditor().getEditorInput().getAdapter(IFile.class);
-		if (file == null)
-			try {
-				throw new FileNotFoundException();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		IWorkbenchPage page = window.getActivePage().getActivePart().getSite().getPage();
+		
+		IFile file = (IFile) page.getActiveEditor().getEditorInput().getAdapter(IFile.class);
+		if (file != null) {
+			String fileName = file.getName();
+			if (isGroovyFile(fileName)) {
+
+			} else if (isStoryFile(fileName)) {
+				switchToGroovyFile(window, page, toGroovyName(fileName));
 			}
-
-		String fileName = file.getName();
-		if (isGroovyFile(fileName)) {
-
-		} else if (isStoryFile(fileName)) {
-			switchToGroovyFile(
-					HandlerUtil.getActiveWorkbenchWindowChecked(event),
-					toGroovyName(fileName));
 		}
-
 		return null;
 	}
 
@@ -93,15 +75,13 @@ public class JumpToHandler extends AbstractHandler {
 		return sb.toString();
 	}
 
-	private void switchToGroovyFile(IWorkbenchWindow window, String fileName) {
-
+	private void switchToGroovyFile(IWorkbenchWindow window, IWorkbenchPage page, String fileName) {
 		Shell shell = window.getShell();
 		SelectionDialog dialog = null;
 		try {
 			dialog = JavaUI.createTypeDialog(shell, new ProgressMonitorDialog(
 					shell), SearchEngine.createWorkspaceScope(),
-					IJavaElementSearchConstants.CONSIDER_ALL_TYPES, false,
-					fileName);
+					IJavaElementSearchConstants.CONSIDER_ALL_TYPES, false);
 		} catch (JavaModelException e) {
 			MessageDialog.openInformation(shell, "JBehave Unit",
 					"Ops.. can't open dialog:\n" + e.toString());
@@ -114,6 +94,20 @@ public class JumpToHandler extends AbstractHandler {
 		dialog.setMessage(PackagesMessages.GotoType_dialog_message);
 
 		if (dialog.open() == IDialogConstants.CANCEL_ID) {
+			return;
+		}
+		
+		Object[] types= dialog.getResult();
+		if (types != null && types.length > 0) {
+			if (types[0] != null) {
+				IPath path = ((org.eclipse.jdt.internal.core.SourceType) types[0]).getPath();
+				IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
+				try {
+					IDE.openEditor(page, file, true);
+				} catch (PartInitException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
