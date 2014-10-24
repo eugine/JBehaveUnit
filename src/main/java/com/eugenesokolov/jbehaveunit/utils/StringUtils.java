@@ -47,7 +47,5 @@ public class StringUtils {
 			loopDelim = delim;
 		}
 		return sb.toString();
-
 	}
-
 }
