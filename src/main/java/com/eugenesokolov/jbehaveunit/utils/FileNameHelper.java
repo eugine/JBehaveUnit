@@ -1,6 +1,6 @@
 package com.eugenesokolov.jbehaveunit.utils;
 
-public class FileNameHelper {
+public class FileNameHelper implements IFileNameHelper {
 	
 	public static final String STORY_EXTENSION = ".story";
 	public static final String GROOVY_EXTENSION = ".groovy";
@@ -8,7 +8,8 @@ public class FileNameHelper {
 	/**
 	 * Convert GroovyFilename.groovy -> Groovy_Filename 
 	 */
-	public static String toStoryName(String groovyFileName) {
+	@Override
+	public String toStoryName(String groovyFileName) {
 		String name = groovyFileName.substring(0, groovyFileName.length() - GROOVY_EXTENSION.length());
 		return StringUtils.joinWords(StringUtils.splitByCamelCase(name), "_");
 	}
@@ -16,7 +17,8 @@ public class FileNameHelper {
 	/**
 	 * Convert Story_FileName.story -> StoryFilename
 	 */
-	public static String toGroovyName(String storyFileName) {
+	@Override
+	public String toGroovyName(String storyFileName) {
 		String name = storyFileName.substring(0, storyFileName.length() - STORY_EXTENSION.length());
 
 		String[] words = name.split("_");
@@ -27,13 +29,13 @@ public class FileNameHelper {
 		return sb.toString();
 	}
 
-	public static boolean isGroovyFile(String fileName) {
+	@Override
+	public boolean isGroovyFile(String fileName) {
 		return fileName.endsWith(GROOVY_EXTENSION);
 	}
 
-	public static boolean isStoryFile(String fileName) {
+	@Override
+	public boolean isStoryFile(String fileName) {
 		return fileName.endsWith(STORY_EXTENSION);
 	}
-
-
 }

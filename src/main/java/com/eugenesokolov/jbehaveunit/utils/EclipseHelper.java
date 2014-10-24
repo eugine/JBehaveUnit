@@ -21,17 +21,20 @@ import org.eclipse.ui.dialogs.FilteredResourcesSelectionDialog;
 import org.eclipse.ui.dialogs.SelectionDialog;
 import org.eclipse.ui.ide.IDE;
 
-public class EclipseHelper {
+public class EclipseHelper implements IEclipseHelper {
 
-	public static IWorkbenchWindow getActiveWorkbenchWindow() {
+	@Override
+	public IWorkbenchWindow getActiveWorkbenchWindow() {
 		return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 	}
 
-	public static IWorkbenchPage getActivePage() {
+	@Override
+	public IWorkbenchPage getActivePage() {
 		return getActiveWorkbenchWindow().getActivePage().getActivePart().getSite().getPage();
 	}
 
-	public static boolean openFile(IWorkbenchPage page, IPath path) {
+	@Override
+	public boolean openFile(IWorkbenchPage page, IPath path) {
 		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(path);
 		try {
 			IDE.openEditor(page, file, true);
@@ -42,7 +45,8 @@ public class EclipseHelper {
 		return true;
 	}
 
-	public static boolean openTypeFile(IWorkbenchWindow window, IWorkbenchPage page, String initialPattern) {
+	@Override
+	public boolean openTypeFile(IWorkbenchWindow window, IWorkbenchPage page, String initialPattern) {
 		Shell shell = window.getShell();
 		SelectionDialog dialog = null;
 		try {
@@ -63,7 +67,8 @@ public class EclipseHelper {
 		return false;
 	}
 
-	public static boolean openResourceFile(IWorkbenchWindow window, IWorkbenchPage page, String initialPattern) {
+	@Override
+	public boolean openResourceFile(IWorkbenchWindow window, IWorkbenchPage page, String initialPattern) {
 		Shell shell = window.getShell();
 		FilteredResourcesSelectionDialog dialog = null;
 		dialog = new FilteredResourcesSelectionDialog(shell, false, ResourcesPlugin.getWorkspace().getRoot(), 
